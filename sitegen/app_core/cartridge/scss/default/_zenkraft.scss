@@ -1,0 +1,136 @@
+.tracking-overview {
+  ul {
+    font-size: 1.7em;
+    position: relative;
+    z-index: 1;
+    padding-inline-start: 0px;
+  }
+  li {
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    line-height: 2em;
+    border-radius: 1em;
+    background: $citrus;
+    margin: 0 1em;
+    display: inline-block;
+    color: white;
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      top: .9em;
+      left: -4em;
+      width: 4em;
+      height: .2em;
+      background: $citrus;
+      z-index: -1;
+    }
+  }
+}
+
+ul.checkmark li:after {
+  content: " ";
+  display: block;
+  width: 0.3em;
+  height: 0.6em;
+  border: solid white;
+  border-width: 0 0.2em 0.2em 0;
+  position: absolute;
+  left: .8em;
+  top: 40%;
+  margin-top: -0.2em;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.tracking-container, .tracking-overview {
+	width: 100%;
+	margin: auto;
+	border: solid 2px #efefef;
+	padding: 5px;
+}
+
+.tracking-overview {
+	padding-top: 10px;
+	padding-bottom: 40px;
+	background: #F5F5F5;
+}
+
+.trackingpage {
+  li:first-child::before {
+    display: none;
+  }
+  .active {
+    background: $citrus;
+    ~ li {
+      background: $dim-gray;
+      &::before {
+        background: $dim-gray;
+      }
+    }
+  }
+  	.col-1 {
+		width: 65%;
+	}
+	
+	.col-2 {
+		width: 33%;
+	}
+}
+
+.tracking-header {
+	.track-column{
+		font-weight:bold;
+		border-bottom: solid 2px #efefef;
+	}
+}
+
+.track-column {
+  float: left;
+  width: 33.33%;
+  padding-top: 15px;
+}
+
+/* Clear floats after the columns */
+.tracking-data:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.track-status {
+	margin-left: 1em;
+	font-weight: bold;
+	font-size: 20px;
+	float:left;
+}
+
+.track-number {
+	float: right;
+}
+
+.track-checkmarks {
+	clear: both;
+	padding-top: 1px;
+}
+
+.order-number {
+	font-size: 20px;
+	padding: 15px 0px 15px 0px;
+}
+
+.tracking-title {
+	width: 100%;
+	text-align:center;
+	position:relative;
+	font-weight: bold;
+	font-size: 18px;
+	padding: 10px 0px 10px 0px;
+}	
+
+.tracking-content {
+	.grid-tile {width: 80% !important;}
+}

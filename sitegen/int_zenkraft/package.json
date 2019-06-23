@@ -1,0 +1,7 @@
+{
+	"name": "Zenkraft",
+	"version": "18.1.0",
+	"author": "Zenkfraft",
+	"description": "Zenkraft integration cartridge",
+	"init": ["./modules/zenkraft/serviceInit.js"]
+}

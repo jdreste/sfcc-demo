@@ -1,0 +1,6 @@
+{
+   "hooks": "./cartridge/scripts/hooks.json",
+   "dependencies": {
+      "grunt-cli": "^1.3.1"
+   }
+}

@@ -1,0 +1,105 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isdecorate template="account/orderhistory/pt_orderhistory">
+<isinclude template="util/modules"/>
+
+	<isif condition="${!empty(pdict.Shipment)}">
+		<isset name="shipment" value="${pdict.Shipment}" scope="page"/>	
+		<div class="actions">
+			<isif condition="${pdict.CurrentCustomer.authenticated}">
+				<a href="${URLUtils.https('Order-History')}" title="${Resource.msg('account.orderdetails.returnorder','account',null)}">
+					${Resource.msg('account.orderdetails.returnorder','account',null)}
+				</a>
+			</isif>
+			<a href="${URLUtils.httpHome()}" title="${Resource.msg('account.orderdetails.returnshopping','account',null)}">
+				${Resource.msg('account.orderdetails.returnshopping','account',null)}
+			</a>
+			<h2>Print Shipping Label</h2>
+			<p>Select items and quantity to return. Once selected, click a button below to print your label here or have it emailed to you.</p>
+		</div>
+		<div class="orderdetails">
+			<div class="order-shipments">
+					<isif condition="${shipment.productLineItems.size() > 0}">
+						<iscomment>Shipment Items</iscomment>
+						<div class="order-shipment-table">
+							<div class="line-items">
+								<isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+									<div class="line-item" data-itemid="${productLineItem.product.ID}">
+										<div class="line-item-details">
+											<isif condition="${pliloopstate.first}">
+												<div class="label">${Resource.msg('global.item','locale',null)}</div>
+											</isif>
+											<iscomment>Display product line and product using module</iscomment>
+											<isdisplayliproduct p_productli="${productLineItem}" p_editable="${false}"/>
+											<div class="form-row label-inline">
+												<div class="field-wrapper">
+													<input type="checkbox" class="input-checkbox zenkraft-checkbox" id="${productLineItem.product.ID}" />
+												</div>
+												<label for="${productLineItem.product.ID}">
+													<span>${Resource.msg('order.returnitem','order',null)}</span>
+												</label>
+											</div>
+										</div>
+										<div class="line-item-quantity display-only" data-quantity="${productLineItem.quantity.value}">
+											<isif condition="${pliloopstate.first}">
+												<div class="label">${Resource.msg('global.qty','locale',null)}</div>
+											</isif>
+											<isprint value="${productLineItem.quantity}"/>
+										</div>
+										<!-- Quantity selector for printing a label -->
+										<div class="line-item-quantity selector" style="display:none;">
+											<isif condition="${pliloopstate.first}">
+												<div class="label">${Resource.msg('global.qty','locale',null)}</div>
+											</isif>
+											<select name="${productLineItem.product.ID}-quantity">
+											</select>
+										</div>
+										<div class="line-item-price">
+											<isif condition="${pliloopstate.first}">
+												<div class="label">${Resource.msg('global.price','locale',null)}</div>
+											</isif>
+											<iscomment>Render quantity. If it is a bonus product render word 'Bonus'</iscomment>
+											<isif condition="${productLineItem.bonusProductLineItem}">
+												<div class="bonus-item">
+													<isset name="bonusProductPrice" value="${productLineItem.getAdjustedPrice()}" scope="page"/>
+													<isinclude template="checkout/components/displaybonusproductprice" />
+													<isprint value="${bonusProductPriceValue}" />
+												</div>
+											<iselse/>
+												<isprint value="${productLineItem.adjustedPrice}"/>
+												<isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+													<isloop items="${productLineItem.optionProductLineItems}" var="optionLI">
+														<div class="product-option-price">+ <isprint value="${optionLI.adjustedPrice}"/></div>
+													</isloop>
+												</isif>
+											</isif>
+										</div>
+									</div>
+								</isloop>
+							</div>
+						</div>
+						<div class="form-row form-row-button">
+							<button value="Print Label" id="printlabelbtn" class="btn-printlabel btn-labelaction" data-url="${URLUtils.https('Zenkraft-GetShippingLabel', 'orderID', pdict.Order.orderNo).toString()}" disabled="disabled">${Resource.msg('label.printlabel','order',null)}</button>
+							<button value="Email Label" id="emaillabelbtn" class="btn-emaillabel btn-labelaction" data-url="${URLUtils.https('Zenkraft-SendShippingLabel', 'orderID', pdict.Order.orderNo).toString()}" disabled="disabled">${Resource.msg('label.emaillabel','order',null)}</button>
+						</div>
+						<div class="error label-error" style="display:none;">${Resource.msg('label.selectitem','order',null)}</div>
+					</isif>
+			</div>
+		</div>
+		
+	<iselse/>
+	
+		<isif condition="${pdict.CurrentCustomer.authenticated}">
+			<div class="back">
+				<a href="${URLUtils.https('Order-History')}" title="${Resource.msg('account.orderdetails.returnorder','account',null)}">
+					${Resource.msg('account.orderdetails.returnorder','account',null)}
+				</a>
+			</div>
+		</isif>
+		<div class="not-found">
+			${Resource.msg('account.orders.notfound','account',null)}
+		</div>
+	
+	</isif>
+
+
+</isdecorate>

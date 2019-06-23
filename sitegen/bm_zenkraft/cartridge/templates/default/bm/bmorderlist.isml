@@ -1,0 +1,66 @@
+<isdecorate template="bm/pt_bmextension">
+<iscontent type="text/html" charset="UTF-8">
+<!-- Page Navigator -->
+<isset name="TOP_URL" scope="PAGE"
+	value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentMenuItemId)}">
+<isbreadcrumb name1="${pdict.mainmenuname}" url1="${TOP_URL}" name2="Show logger">
+<!-- EO Page Navigator -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr>
+<td width="100%" class="table_title w e s n">Manage Zenkraft Shipments</td>
+</tr>
+<tr>
+<td class="w e s"><img src="/on/demandware.static/Sites-Site/-/default/vf46aebd27b4ae68a1af45332c7e880ef362ddba6/images/space.gif" width="1" height="2" alt="" border="0"></td>
+</tr>
+
+
+
+
+<tr>
+<td class="table_title_description e w s">
+<b>Manage Zenkraft Shipments.</b>
+<p>
+This page allows you to create shipments for orders that do not have them as well as
+print shipping labels.</p></td>
+</tr>
+</tbody></table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+	<tbody>
+		<tr>
+			<td class="table_header e s" nowrap="nowrap">${Resource.msg('ordernumber','busmanager',null)}</td>
+			<td class="table_header e s" nowrap="nowrap">${Resource.msg('carrier','busmanager',null)}</td>
+			<td class="table_header e s" nowrap="nowrap">${Resource.msg('orderstatus','busmanager',null)}</td>
+			<td class="table_header e s" nowrap="nowrap">${Resource.msg('lastupdated','busmanager',null)}</td>
+			<td class="table_header e s" nowrap="nowrap">${Resource.msg('trackingnumber','busmanager',null)}</td>
+			<td class="table_header e s" nowrap="nowrap">${Resource.msg('label','busmanager',null)}</td>
+			
+		</tr>
+		<isloop items="${pdict.Orders}" var="order">
+			<isscript>
+				let shipment = order.getDefaultShipment();
+			</isscript>
+			<tr style="background-color: #FFFFFF;">
+				<td class="table_detail">${order.orderNo}</td>
+				<isif condition="${!empty(shipment.custom.zenkraftCarrier)}">
+					<td class="table_detail">${shipment.custom.zenkraftCarrier}</td>
+				<iselse/>
+					<td class="table_detail">-</td>
+				</isif>
+				<td class="table_detail">${order.status.displayValue}</td>
+				<td class="table_detail">${order.lastModified.toUTCString()}</td>
+				<isif condition="${!empty(shipment.trackingNumber)}">
+					<td class="table_detail">${shipment.trackingNumber}</td>
+				<iselse/>
+					<td class="table_detail">${Resource.msg('pending','busmanager',null)}</td>
+				</isif>
+				<isif condition="${!empty(shipment.custom.zenkraftLabelUrl)}">
+					<td class="table_detail"><a href="${shipment.custom.zenkraftLabelUrl}" target="_blank">${Resource.msg('view','busmanager',null)}</a></td>
+				<iselse/>
+					<td class="table_detail">-</td>
+				</isif>
+			</tr>
+		</isloop>
+	</tbody>
+</table>
+</isdecorate>

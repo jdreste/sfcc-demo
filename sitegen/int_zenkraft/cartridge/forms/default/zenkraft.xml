@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false">
+	<field formid="orderno" type="string" mandatory="true"/>
+	<field formid="shipmentno" type="string" mandatory="true"/>
+
+	<action formid="printlabel" valid-form="false"/>
+</form>

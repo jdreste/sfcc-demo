@@ -1,0 +1,229 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isdecorate template="content/content/pt_content">
+<isinclude template="util/modules"/>
+
+<isset name="trackData" value="${pdict.TrackingData}" scope="page"/>
+<isset name="trackCarrier" value="${trackData.carrier}" scope="page"/>
+<isset name="trackStatus" value="${trackData.status}" scope="page"/>
+<isset name="Checkpoints" value="${trackData.checkpoints}" scope="page"/>
+<isset name="OrderNumber" value="${pdict.OrderNo}" scope="page"/>
+<isset name="TrackNumber" value="${pdict.TrackingNo}" scope="page"/>
+<isset name="ShipmentLineItems" value="${pdict.ShipData.getProductLineItems()}" scope="page"/>
+
+
+<div class="trackingpage" style="padding:24px 16px 0 16px; font-size:1.1em;">
+	<div class="col-1">
+		<div class="custom-content"><iscontentasset aid="tracking-page-top-content"/></div>
+		
+		<iscomment>Tracking Overview with status</iscomment>
+		<div class="tracking-overview">
+			<div class="track-status">${trackStatus}</div>
+			<div class="track-number">${TrackNumber} <img src="${URLUtils.staticURL('/images/usps-logo-black-transparent.png')}" style="width: 100px;" alt="usps"></div>
+			<div class="track-checkmarks">
+				<ul class="checkmark">
+				  <li>&nbsp;</li><div class="title" style="position: absolute;font-size: .6em;margin-left: 15px;padding-top: 5px;">Picked Up</div>
+				  <li>&nbsp;</li><div class="title" style="position: absolute;font-size: .6em;margin-left: 114px;padding-top: 5px;">In Transit</div>
+				  <li class="active">&nbsp;</li><div class="title" style="position: absolute;font-size: .6em;margin-left: 194px;padding-top: 5px;">Out For Delivery</div>
+				  <li>&nbsp;</li><div class="title" style="position: absolute;font-size: .6em;margin-left: 305px;padding-top: 5px;">Delivered</div>
+				</ul>
+			</div>
+		</div>
+		
+		<iscomment>Order Line Items</iscomment>
+		<isif condition="${!empty(OrderNumber)}">
+			<div class="order-number">Order: ${OrderNumber}</div>
+			<div class="tracking-order-details">
+				<table id="cart-table" class="item-list">
+				<tbody>
+				<isloop items="${ShipmentLineItems}" alias="lineItem">
+				<tr class="cart-row" data-uuid="${lineItem.getUUID()}">
+					<td class="item-image">
+						<isif condition="${lineItem.product != null && lineItem.product.getImage('small',0) != null}">
+							<img src="${lineItem.product.getImage('small',0).getURL()}"	alt="${lineItem.product.getImage('small',0).alt}" title="${lineItem.product.getImage('small',0).title}" />
+						<iselse/>
+							<img src="${URLUtils.staticURL('/images/noimagesmall.png')}" alt="${lineItem.productName}" title="${lineItem.productName}" />
+						</isif>
+					</td>
+					<td class="item-details">
+	
+						<iscomment>Call module to render product</iscomment>
+						<isdisplayliproduct p_productli="${lineItem}" p_editable="${false}" p_hideprice="${true}" p_hidepromo="${true}" />
+					</td>
+					<td class="item-quantity">
+						<isprint value="${lineItem.quantity}" />
+					</td>
+					<td class="item-quantity-details">
+						<iscomment>Product Existence and Product Availability</iscomment>
+						<isif condition="${!lineItem.bonusProductLineItem || lineItem.getBonusDiscountLineItem() != null}">
+							<isif condition="${lineItem.product == null}">
+								<span class="not-available">
+									${Resource.msg('cart.removeditem','checkout',null)}
+								</span>
+							<iselse/>
+								<isset name="product" value="${lineItem.product}" scope="page" />
+								<isset name="quantity"	value="${pdict.Basket.getAllProductQuantities().get(lineItem.product).value}" scope="page" />
+								<isinclude template="checkout/cart/cartavailability" />
+							</isif>
+						</isif>
+	
+					</td>
+	
+					<td class="item-price">
+						<isif condition="${lineItem.product != null}">
+	
+							<iscomment>
+								StandardPrice: quantity-one unit price from the configured list price
+								book. SalesPrice: product line item base price. If these are
+								different, then we display crossed-out StandardPrice and also
+								SalesPrice.
+							</iscomment>
+	
+	
+							<iscomment>Get the price model for this	product.</iscomment>
+							<isset name="PriceModel" value="${lineItem.product.getPriceModel()}" scope="page" />
+	
+	
+							<iscomment>Get StandardPrice from list price book.</iscomment>
+							<isinclude template="product/components/standardprice" />
+	
+	
+							<iscomment>Get SalesPrice from line item itself.</iscomment>
+							<isset name="SalesPrice" value="${lineItem.basePrice}" scope="page" />
+							<isif condition="${StandardPrice.available && StandardPrice > SalesPrice}">
+								<iscomment>StandardPrice and SalesPrice are different, show standard</iscomment>
+								<div class="price-promotion">
+									<span class="price-standard"><isprint value="${StandardPrice}" /></span>
+									<span class="price-sales"><isprint value="${SalesPrice}" /></span>
+								</div>
+							<iselse/>
+								<span class="price-sales"><isprint value="${SalesPrice}" /></span>
+							</isif>
+	
+	
+						</isif>
+					</td>
+	
+					<td class="item-total">
+	
+						<isif condition="${lineItem.bonusProductLineItem}">
+							<span class="bonus-item">
+								${Resource.msg('global.bonus','locale',null)}
+							</span>
+						<iselse/>
+	
+							<iscomment>Display the unadjusted price if the line item has price adjustments.</iscomment>
+							<isif condition="${lineItem.priceAdjustments.length > 0}">
+	
+								<span class="price-unadjusted">
+									${Resource.msg('cart.listprice','checkout',null)}
+									<span><isprint value="${lineItem.getPrice()}" /> </span>
+								</span>
+	
+								<iscomment>Display the promotion name for each price adjustment.</iscomment>
+								<isloop	items="${lineItem.priceAdjustments}" var="pa" status="prAdloopstatus">
+									<div class="promo-adjustment">
+										<isif condition="${lineItem.quantityValue > 1 && lineItem.quantityValue != pa.quantity}">
+											<isprint value="${pa.quantity}" /> x
+										</isif>
+										<isprint value="${pa.promotion.calloutMsg}" encoding="off"/>
+									</div>
+								</isloop>
+	
+								<iscomment>Display	the adjusted item total.</iscomment>
+								<span class="price-adjusted-total">
+									${Resource.msg('cart.itemtotal','checkout',null)}
+									<span><isprint value="${lineItem.getAdjustedPrice()}" /></span>
+								</span>
+	
+							<iselse/>
+	
+								<iscomment>Display non-adjusted item total.</iscomment>
+								<span class="price-total">
+									<isprint value="${lineItem.getAdjustedPrice()}" />
+								</span>
+	
+							</isif>
+	
+	
+	
+	
+	
+						</isif>
+	
+						<iscomment>Options</iscomment>
+						<isif condition="${lineItem.optionProductLineItems.size() > 0}">
+							<isloop items="${lineItem.optionProductLineItems}" var="oli">
+								<isif condition="${oli.price > 0}">
+									<isif condition="${oli.price > oli.adjustedPrice}">
+										<div class="price-option">
+											<span class="label">
+												${Resource.msg('cart.option','checkout',null)}:
+											</span>
+											<span class="value">
+												<strike>
+													<isprint value="${oli.price}" />
+												</strike>
+												+ <isprint value="${oli.adjustedPrice}" />
+											</span>
+										</div>
+									<iselse/>
+										<div class="price-option">
+											<span class="label">
+												${Resource.msg('cart.option','checkout',null)}:
+											</span>
+											<span class="value">
+												+ <isprint value="${oli.price}" />
+											</span>
+										</div>
+									</isif>
+								</isif>
+							</isloop>
+						</isif>
+					</td>
+				</tr>
+				</tbody>
+				</table>
+				</isloop>
+			
+			</div>
+		</isif>
+		
+		<iscomment>Order Tracking History</iscomment>
+		<div class="tracking-container">
+			<div class="tracking-title">Travel History</div>
+			
+			<div class="tracking-header">
+			  <div class="track-column">Date/Time</div>
+			  <div class="track-column">Activity</div>
+			  <div class="track-column">Location</div>
+			</div>
+			
+			<isloop items="${Checkpoints}" alias="checkpoint">
+			<isscript>
+			function parseISOString(s) {
+			  var b = s.split(/\D+/);
+			  return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
+			}
+			
+			var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+			var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+			
+				let thisdate = parseISOString(checkpoint.time);
+				let formattedDate = days[thisdate.getDay()] + ", " + months[thisdate.getMonth()] + " " + thisdate.getDate() + " " thisdate.getYear();
+			</isscript>
+			<div class="tracking-data">
+			  <div class="track-column">${formattedDate}</div>
+			  <div class="track-column">${checkpoint.description}</div>
+			  <div class="track-column">${checkpoint.location.city}, ${checkpoint.location.state} ${checkpoint.location.postal_code}</div>
+			</div>
+			</isloop>
+		</div>
+	</div>
+	<div class="col-2">
+		<div class="tracking-content">
+			<isslot id="tracking-page-content" description="Content For Branded Tracking Page" context="global" />
+		</div>
+	</div>
+
+</div>
+</isdecorate>
